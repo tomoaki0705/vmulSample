@@ -31,5 +31,19 @@ int main(int argc, char**argv)
     inputB[3] = 14;
 	verify( inputA, inputB, false );
 	verify( inputA, inputB, true  );
+
+	float a, b, r = 100;
+	for(int i = 0;i < 1000000;i++)
+	{
+		a = sqrtSingle(r, true);
+		b = sqrtSingle(r, false);
+		if( a != b )
+		{
+			std::cout << std::fixed << std::setprecision(10) << r << "  " << std::hex << *(unsigned int*)&r << std::dec << std::endl;
+			std::cout << std::fixed << std::setprecision(10) << a << "  " << std::hex << *(unsigned int*)&a << std::dec << std::endl;
+			std::cout << std::fixed << std::setprecision(10) << b << "  " << std::hex << *(unsigned int*)&b << std::dec << std::endl;
+		}
+		r += 0.001f;
+	}
     return 0;
 }

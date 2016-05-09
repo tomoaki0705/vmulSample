@@ -11,7 +11,7 @@ inline float4 v_sqrt(const float4 x)
     float4 x1 = vmaxq_f32(x, vdupq_n_f32(FLT_MIN));
     float4 e = vrsqrteq_f32(x1);
     float ee = get_float(e, 0);
-	std::cout << ee << std::endl;
+    std::cout << ee << std::endl;
     e = vmulq_f32(vrsqrtsq_f32(vmulq_f32(x1, e), e), e);
     e = vmulq_f32(vrsqrtsq_f32(vmulq_f32(x1, e), e), e);
     return vmulq_f32(x, e);
@@ -47,4 +47,12 @@ void magnitude(const float* a, const float* b, float* result, bool doSqrt)
             result[i] = a[i]*a[i]+b[i]*b[i];
         }
     }
+}
+
+float sqrtSingle(float a, bool useHW)
+{
+    if( useHW )
+        return vrsqrtes_f32(a);
+    else
+        return 1.0f/std::sqrt(a);    
 }
