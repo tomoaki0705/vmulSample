@@ -1,29 +1,50 @@
-#include "vmul.hpp"
+#include "simdUtils.h"
 #include <algorithm>
 #include <cmath>
+#include <climits>
+#include <cstdlib>
+#include "float.h"
+#include <iostream>
 
-struct v_float32x4
+inline float4 v_sqrt(const float4 x)
 {
-    typedef float lane_type;
-    enum { nlanes = 4 };
-
-    v_float32x4() {}
-    explicit v_float32x4(float32x4_t v) : val(v) {}
-    v_float32x4(float v0, float v1, float v2, float v3)
-    {
-        float v[] = {v0, v1, v2, v3};
-        val = vld1q_f32(v);
-    }
-    float get0() const
-    {
-        return vgetq_lane_f32(val, 0);
-    }
-    float32x4_t val;
-};
+    float4 x1 = vmaxq_f32(x, vdupq_n_f32(FLT_MIN));
+    float4 e = vrsqrteq_f32(x1);
+    float ee = get_float(e, 0);
+	std::cout << ee << std::endl;
+    e = vmulq_f32(vrsqrtsq_f32(vmulq_f32(x1, e), e), e);
+    e = vmulq_f32(vrsqrtsq_f32(vmulq_f32(x1, e), e), e);
+    return vmulq_f32(x, e);
+}
 
 
-v_float32x4_t magnitude(const v_float32x4& a, const v_float32x4& b)
+void magnitude_simd(const float* a, const float* b, float* result, bool doSqrt)
 {
-    v_float32x4 x(vmlaq_f32(vmulq_f32(a.val, a.val), b.val, b.val));
-    return v_sqrt(x);
+    float4 vA = load_float4(a);
+    float4 vB = load_float4(b);
+    float4 x = vmlaq_f32(vmulq_f32(vA, vA), vB, vB);
+
+    if(doSqrt)
+    {
+        store_float4( result, v_sqrt(x) );
+    }
+    else
+    {
+        store_float4( result, x );
+    }
+}
+
+void magnitude(const float* a, const float* b, float* result, bool doSqrt)
+{
+    for(int i = 0;i < 4;i++)
+    {
+        if(doSqrt)
+        {
+            result[i] = std::sqrt(a[i]*a[i]+b[i]*b[i]);
+        }
+        else
+        {
+            result[i] = a[i]*a[i]+b[i]*b[i];
+        }
+    }
 }
