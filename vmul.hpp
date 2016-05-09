@@ -1,6 +1,4 @@
-#include "vmul.hpp"
-#include <algorithm>
-#include <cmath>
+#include <arm_neon.h>
 
 struct v_float32x4
 {
@@ -21,9 +19,4 @@ struct v_float32x4
     float32x4_t val;
 };
 
-
-v_float32x4_t magnitude(const v_float32x4& a, const v_float32x4& b)
-{
-    v_float32x4 x(vmlaq_f32(vmulq_f32(a.val, a.val), b.val, b.val));
-    return v_sqrt(x);
-}
+v_float32x4_t magnitude(const v_float32x4& a, const v_float32x4& b);
